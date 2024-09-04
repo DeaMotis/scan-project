@@ -1,0 +1,72 @@
+@import "../../../styles/colors.css";
+
+.footer {
+    /*margin-top: 115px;*/
+    margin-left: 30px;
+    display: flex;
+    align-items: center;
+    height: 137px;
+    background: var(--green);
+    justify-content: space-between;
+
+}
+
+.logo {
+    width: 141px;
+    height: 141px;
+    margin-left: 31px;
+    margin-top: 5px;
+}
+
+.info {
+    text-align: right;
+    margin-right: 45px;
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    line-height: 2px;
+    letter-spacing: 0.04em;
+    margin-bottom: 15px;
+}
+
+.address {
+
+    font-size: 14px;
+
+}
+
+.copyright {
+    margin-top: 35px;
+    font-size: 12px ;
+
+}
+
+@media (max-width: 1360px) {
+    .footer {
+        max-width: 375px;
+        margin: 0 auto;
+
+    }
+    .logo {
+        margin-left: 19px;
+        margin-bottom: 19px;
+    }
+    .logo img {
+        width: 111px;
+        height: 111px;
+
+    }
+
+    .info {
+    text-align: right;
+    margin-right: 20px;
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    line-height: 2px;
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+}
+
+
+
+
+}
