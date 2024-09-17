@@ -1,11 +1,10 @@
 import React from 'react';
 import './Main.css';
-import {MainSlaiderBlock, MainSlider, ClockDuplicates} from './Slider/Slider.jsx';
-import TariffBeginner from './Card/Tariff_Beginner/Tariff_Beginner.jsx';
-import TariffBusiness from './Card/Tariff_Business/Tariff_Business.jsx';
-import TariffPro from './Card/Tariff_Pro/Tariff_Pro.jsx';
-import ResultPage from './ResultPage/ResultPage.jsx';
-import SearchForm from '../Search/SearchForm/SearchForm.jsx';
+import { MainSliderBlock, MainSlider, ClockDuplicates } from './Slider/Slider';
+import TariffBeginner from './Card/Tariff_Beginner/Tariff_Beginner';
+import TariffBusiness from './Card/Tariff_Business/Tariff_Business';
+import TariffPro from './Card/Tariff_Pro/Tariff_Pro';
+import SearchForm from '../Search/SearchForm/SearchForm';
 
 const Main = () => {
     return (
@@ -14,18 +13,19 @@ const Main = () => {
             <SearchForm />
 
             {/* Слайдер */}
-            <Slider />
+            <section className="slider-section">
+                <MainSliderBlock />
+                <MainSlider />
+                <ClockDuplicates />
+            </section>
 
             {/* Тарифы */}
             <section className="tariffs">
                 <h2>Наши Тарифы</h2>
                 <TariffBeginner />
-                <TariffBusiness />
                 <TariffPro />
+                <TariffBusiness />
             </section>
-
-            {/* Страница результатов */}
-            <ResultPage />
         </main>
     );
 };

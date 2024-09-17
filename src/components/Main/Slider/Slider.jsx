@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
-import uniqid from 'uniqid';
-
-import styles from "../../../styles/slaiderblock.css";
+import { uniqid } from "uniqid";
+import styles from "../../../styles/sliderblock.css";
 import CLOCK from "../../../images/clock.png";
 import LOOP from "../../../images/loop.png";
 import SHIELD from "../../../images/shield.png";
 
-
-function MainSlaiderBlock({ image, altText, text }) {
+function MainSliderBlock({ image, altText, text }) {
     return (
         <section className={styles.container}>
             <img className={styles.image} src={image} alt={altText} />
@@ -34,13 +32,12 @@ const sliderData = [
     },
 ];
 
-
 function MainSlider() {
     return (
         <div>
-            {sliderData.map((item) => (
-                <MainSlaiderBlock
-                    key={uniqid()}
+            {sliderData.map((item, index) => (
+                <MainSliderBlock
+                    key={index}
                     image={item.image}
                     altText={item.altText}
                     text={item.text}
@@ -50,16 +47,20 @@ function MainSlider() {
     );
 }
 
-
 function ClockDuplicates() {
     return (
         <section className={styles.container}>
             {[...Array(4)].map((_, index) => (
-                <img key={index} className={styles.image} src={CLOCK} alt={`Clock duplicate ${index + 1}`} />
+                <img
+                    key={index}
+                    className={styles.image}
+                    src={CLOCK}
+                    alt={`Clock duplicate ${index + 1}`}
+                />
             ))}
-            <p className={styles.text}>(</p>
+            <p className={styles.text}>({ /* Также можно уточнить, зачем здесь скобки */ })</p>
         </section>
     );
 }
 
-export { MainSlider, ClockDuplicates };
+export { MainSlider, ClockDuplicates, MainSliderBlock };

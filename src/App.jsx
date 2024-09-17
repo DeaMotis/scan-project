@@ -1,20 +1,19 @@
-import Header from "./components/Layout/Header/Header.jsx";
-import Footer from "./components/Layout/Footer/Footer.jsx";
-import Main from "./components/Main/Main.jsx";
-import Auth from "./components/Auth/AuthForm/AuthForm.jsx";
-import Search from "./components/Search/SearchForm/SearchForm.jsx";
-import { Route, Routes } from "react-router-dom";
-import { Context } from "./main.jsx";
-import { useContext } from "react";
-import { observer } from "mobx-react-lite";
-import { ClipLoader } from "react-spinners";
 import "./App.css";
 import Result from "./components/Main/ResultPage/ResultPage.jsx";
+import { useSelector } from 'react-redux';
+import { Routes, Route } from 'react-router-dom';
+import Footer from './components/Layout/Footer/Footer';
+import Header from './components/Layout/Header/Header';
+import Main from './components/Main/Main';
+import Auth from './components/Auth/AuthForm/AuthForm';
+import Search from './components/Search/SearchForm/SearchForm';
+import ClipLoader from 'react-spinners/ClipLoader';
 
 function App() {
-    const { store } = useContext(Context);
+    const isLoading = useSelector((state) => state.example.isLoading);
+    const isAuth = useSelector((state) => state.example.isAuth);
 
-    if (store.isLoading) {
+    if (isLoading) {
         return (
             <div className="loader">
                 <ClipLoader
@@ -30,17 +29,16 @@ function App() {
 
     return (
         <>
-            {store.isAuth ? <HeaderAuth /> : <Header />}
+            <Header /> {/* Заголовок показывается для всех */}
             <Routes>
                 <Route exact path="/" element={<Main />} />
                 <Route exact path="/auth" element={<Auth />} />
-                {store.isAuth && <Route exact path="/search" element={<Search />} />}
-                {store.isAuth && <Route exact path="/result" element={<Result />} />}
-
+                {isAuth && <Route exact path="/search" element={<Search />} />}
+                {isAuth && <Route exact path="/result" element={<Result />} />}
             </Routes>
             <Footer />
         </>
     );
 }
 
-export default observer(App);
+export default App;
