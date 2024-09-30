@@ -2,7 +2,7 @@ import styles from "../../../../styles/Tariff.css";
 import COMP from "../../../../images/computer.png";
 import CHECK from "../../../../images/check_mark.png";
 
-function TariffsBlock3() {
+function TariffBusiness() {
     return(
         <section className={styles.container}>
             <div className={styles.head3}>
@@ -18,7 +18,7 @@ function TariffsBlock3() {
                     <div className={styles.price}>2 379 ₽</div>
                     <div className={styles.oldprice}>3 700 ₽</div>
                 </div>
-                <div className={styles.tariff3}>В тариф входит:</div>
+                <div className={styles.tariffbusiness}>В тариф входит:</div>
                 <div className={styles.list}>
 
                     <div className={styles.item}><img src={CHECK} alt={'галочка'}/>Все пункты тарифа Pro</div>
@@ -38,5 +38,4 @@ function TariffsBlock3() {
     )
 
 }
-
-export default TariffsBlock3;
+export default TariffBusiness;

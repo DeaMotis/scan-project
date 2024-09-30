@@ -23,7 +23,7 @@ function Menu() {
                     />
                     <Button
                         btnClass='login_enter'
-                        btnName='Закрыть' // Заменено на текстовую кнопку
+                        btnName='Закрыть'
                         disabled={false}
                         onClick={() => { dispatch(showMenu()) }}
                     />
@@ -31,7 +31,7 @@ function Menu() {
                 {userInfo ? (
                     <div className="profile">
                         <div className='login_pic' />
-                        <span className='menu_name'>Анна С.</span>
+                        <span className='menu_name'>Анастасия С.</span>
                     </div>
                 ) : (
                     <></>
@@ -66,7 +66,7 @@ function Menu() {
                             btnName='Войти'
                             disabled={false}
                             onClick={() => {
-                                navigate('/loginPage');
+                                navigate('/LoginForm');
                                 dispatch(showMenu());
                             }}
                         />

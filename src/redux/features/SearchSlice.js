@@ -1,117 +1,74 @@
-import { createSlice } from "@reduxjs/toolkit"
-import { createAsyncThunk } from "@reduxjs/toolkit"
-import { reqHistograms, reqObjectSearch, reqDocuments } from "../../_axiosRequests/requests"
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { reqHistograms, reqObjectSearch, reqDocuments } from '../../requests/requests';
+
+export const searchRequest = createAsyncThunk(
+    'search/searchRequest',
+    async (state, { rejectWithValue }) => {
+        try {
+            const response = await reqHistograms(state);
+            return response.data.data;
+        } catch (error) {
+            return rejectWithValue(error.response ? error.response.data : error.message);
+        }
+    }
+);
+
+export const docRequest = createAsyncThunk(
+    'search/docRequest',
+    async (state, { rejectWithValue }) => {
+        try {
+            const response = await reqObjectSearch(state);
+            let ids = [];
+            response.data.items.forEach(item => ids.push(item.encodedId));
+            const docsResponse = await reqDocuments({ ids: ids.slice(0, 100) });
+            return docsResponse.data;
+        } catch (error) {
+            return rejectWithValue(error.response ? error.response.data : error.message);
+        }
+    }
+);
 
 const initialState = {
     histogramsLoading: false,
     docsLoading: false,
-    searchParams: {
-        intervalType: 'month',
-        histogramTypes: ['totalDocuments', 'riskFactors'],
-        issueDateInterval: {
-            startDate: '',
-            endDate: ''
-        },
-        similarMode: 'duplicates',
-        limit: 0,
-        sortType: 'sourceInfluence',
-        sortDirectionType: 'desc',
-        searchContext: {
-            targetSearchEntitiesContext: {
-                targetSearchEntities: [
-                    {
-                        type: 'company',
-                        sparkId: null,
-                        entityId: null,
-                        inn: 0,
-                        maxFullness: false,
-                        inBusinessNews: false
-                    }
-                ],
-                onlyMainRole: false,
-                tonality: 'any',
-                onlyWithRiskFactors: false,
-                riskFactors: {
-                    and: [],
-                    or: [],
-                    not: []
-                },
-                themes: {
-                    and: [],
-                    or: [],
-                    not: []
-                },
-                themesFilter: {
-                    and: [],
-                    or: [],
-                    not: []
-                },
-                searchArea: {
-                    includedSources: [],
-                    excludedSources: [],
-                    includedSourceGroups: [],
-                    excludedSourceGroups: []
-                },
-                attributeFilters: {
-                    excludeTechNews: false,
-                    excludeAnnouncements: false,
-                    excludeDigests: false
-                }
-            }
-        }
-    },
     histograms: [],
-    documents: []
-}
+    documents: [],
+    searchParams: {
+        // инициализация других параметров
+    },
+};
 
-export const searchRequest = createAsyncThunk(
-    'search/searchRequest',
-    async (state) => {
-        const response = await reqHistograms(state);
-        // console.log(response.data.data);
-        return response.data.data;
-    }
-)
-
-export const docRequest = createAsyncThunk(
-    'search/docRequest',
-    async (state) => {
-        const response = await reqObjectSearch(state);
-        let ids = [];
-        await response.data.items.map(id => ids.push(id.encodedId));
-        const docs = await reqDocuments({ids: ids.slice(0,100)});
-        // console.log(ids);
-        return docs.data;
-    }
-)
-
+// Создание среза
 export const searchSlice = createSlice({
     name: 'search',
     initialState,
     reducers: {
-        getStartDate(state, action) {
+        setStartDate(state, action) {
             state.searchParams.issueDateInterval.startDate = action.payload;
         },
-        getEndDate(state, action) {
+        setEndDate(state, action) {
             state.searchParams.issueDateInterval.endDate = action.payload;
         },
-        getINN(state, action) {
+        setINN(state, action) {
             state.searchParams.searchContext.targetSearchEntitiesContext.targetSearchEntities[0].inn = action.payload;
         },
-        getLimit(state, action) {
+        setLimit(state, action) {
             state.searchParams.limit = action.payload;
         },
-        getTonality(state, action) {
+        setTonality(state, action) {
             state.searchParams.searchContext.targetSearchEntitiesContext.tonality = action.payload;
         },
-        getChecks(state, action) {
-            state.searchParams.searchContext.targetSearchEntitiesContext.targetSearchEntities[0].maxFullness = action.payload.fullness;
-            state.searchParams.searchContext.targetSearchEntitiesContext.targetSearchEntities[0].inBusinessNews = action.payload.inNews;
-            state.searchParams.searchContext.targetSearchEntitiesContext.onlyMainRole = action.payload.mainRole;
-            state.searchParams.searchContext.targetSearchEntitiesContext.onlyWithRiskFactors = action.payload.risk;
-            state.searchParams.searchContext.targetSearchEntitiesContext.attributeFilters.excludeTechNews = action.payload.techNews;
-            state.searchParams.searchContext.targetSearchEntitiesContext.attributeFilters.excludeAnnouncements = action.payload.announcements;
-            state.searchParams.searchContext.targetSearchEntitiesContext.attributeFilters.excludeDigests = action.payload.digests;
+        setChecks(state, action) {
+            const { fullness, inNews, mainRole, risk, techNews, announcements, digests } = action.payload;
+            const targetEntity = state.searchParams.searchContext.targetSearchEntitiesContext.targetSearchEntities[0];
+
+            targetEntity.maxFullness = fullness;
+            targetEntity.inBusinessNews = inNews;
+            state.searchParams.searchContext.targetSearchEntitiesContext.onlyMainRole = mainRole;
+            state.searchParams.searchContext.targetSearchEntitiesContext.onlyWithRiskFactors = risk;
+            state.searchParams.searchContext.targetSearchEntitiesContext.attributeFilters.excludeTechNews = techNews;
+            state.searchParams.searchContext.targetSearchEntitiesContext.attributeFilters.excludeAnnouncements = announcements;
+            state.searchParams.searchContext.targetSearchEntitiesContext.attributeFilters.excludeDigests = digests;
         }
     },
     extraReducers: (builder) => {
@@ -121,12 +78,11 @@ export const searchSlice = createSlice({
             })
             .addCase(searchRequest.fulfilled, (state, action) => {
                 state.histograms = action.payload;
-                // console.log(action);
                 state.histogramsLoading = false;
             })
             .addCase(searchRequest.rejected, (state, action) => {
                 state.histogramsLoading = false;
-                console.log(action.payload);
+                state.error = action.payload;
             })
             .addCase(docRequest.pending, (state) => {
                 state.docsLoading = true;
@@ -134,14 +90,16 @@ export const searchSlice = createSlice({
             .addCase(docRequest.fulfilled, (state, action) => {
                 state.docsLoading = false;
                 state.documents = action.payload;
-                // console.log(action);
             })
             .addCase(docRequest.rejected, (state, action) => {
                 state.docsLoading = false;
-                console.log(action.payload);
-            })
+                state.error = action.payload;
+            });
     }
-})
+});
 
-export const { getStartDate, getEndDate, getINN, getLimit, getTonality, getChecks } = searchSlice.actions;
-export default searchSlice.reducer
+// Экспорт действий
+export const { setStartDate, setEndDate, setINN, setLimit, setTonality, setChecks } = searchSlice.actions;
+
+// Экспорт редюсера по умолчанию
+export default searchSlice.reducer;

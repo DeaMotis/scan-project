@@ -4,7 +4,7 @@ const initialState = {
     menu: false,
 }
 
-export const menuSlice = createSlice({
+const menuSlice = createSlice({
     name: 'menu',
     initialState,
     reducers: {

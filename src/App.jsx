@@ -1,44 +1,35 @@
-import "./App.css";
-import Result from "./components/Main/ResultPage/ResultPage.jsx";
-import { useSelector } from 'react-redux';
-import { Routes, Route } from 'react-router-dom';
-import Footer from './components/Layout/Footer/Footer';
-import Header from './components/Layout/Header/Header';
-import Main from './components/Main/Main';
-import Auth from './components/Auth/AuthForm/AuthForm';
-import Search from './components/Search/SearchForm/SearchForm';
-import ClipLoader from 'react-spinners/ClipLoader';
+import Main from "./components/Main/Main";
+import Header from "./components/Layout/Header/Header";
+import Footer from "./components/Layout/Footer/Footer";
+import SearchForm from "./components/Search/SearchForm/SearchForm";
+import Response from "./components/Response/Response";
+import AuthForm from "./components/Auth/AuthForm/AuthForm"
+
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+const routesData = [
+  { path: "/", element: <Main /> },
+  { path: "/auth", element: <AuthForm /> },
+  { path: "/search", element: <SearchForm /> },
+  { path: "/response", element: <Response /> },
+];
 
 function App() {
-    const isLoading = useSelector((state) => state.example.isLoading);
-    const isAuth = useSelector((state) => state.example.isAuth);
-
-    if (isLoading) {
-        return (
-            <div className="loader">
-                <ClipLoader
-                    color={"#123abc"}
-                    loading={true}
-                    size={150}
-                    aria-label="Loading Spinner"
-                    data-testid="loader"
-                />
-            </div>
-        );
-    }
-
-    return (
-        <>
-            <Header /> {/* Заголовок показывается для всех */}
-            <Routes>
-                <Route exact path="/" element={<Main />} />
-                <Route exact path="/auth" element={<Auth />} />
-                {isAuth && <Route exact path="/search" element={<Search />} />}
-                {isAuth && <Route exact path="/result" element={<Result />} />}
-            </Routes>
-            <Footer />
-        </>
-    );
+  return (
+    <div className="App">
+      <BrowserRouter>
+        <Header />
+        <main>
+          <Routes>
+            {routesData.map((route, index) => (
+              <Route key={index} path={route.path} element={route.element} />
+            ))}
+          </Routes>
+        </main>
+        <Footer />
+      </BrowserRouter>
+    </div>
+  );
 }
 
 export default App;

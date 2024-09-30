@@ -1,78 +1,137 @@
-import React, { useState } from 'react';
-import './AuthForm.css';
+import key from "../../../images/auth_keys.png";
+import "./AuthForm.css";
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
+import lock from "../../../images/lock.png";
+import google from "../../../images/google.png";
+import facebook from "../../../images/facebook.png";
+import yandex from "../../../images/yandex.png";
+import store from "../../../store";
 
-const AuthForm = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
+function AuthForm() {
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const navigate = useNavigate();
 
-        setIsSubmitting(true);
+  useEffect(() => {
+    console.log("useEffect с токеном:", store.token);
+    store.token && navigate("/");
 
-        try {
-            const response = await fetch('account/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password }),
-            });
+  }, [store.token]);
 
-            if (!response.ok) {
-                throw new Error('Ошибка авторизации');
-            }
 
-            const data = await response.json();
-            localStorage.setItem('accessToken', data.accessToken);
-            localStorage.setItem('expire', data.expire);
-        } catch (error) {
-            console.error('Ошибка:', error);
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isValid },
+  } = useForm({
+    mode: "onBlur",
+    defaultValues: {
+      login: "sf_student1",
+      password: "4i2385j",
+    },
+  });
 
-    return (
-        <div className="auth-form-container">
-            <h2>Форма авторизации</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="username">Логин:</label>
-                    <input
-                        type="text"
-                        id="username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="password">Пароль:</label>
-                    <input
-                        type="password"
-                        id="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                </div>
-                <button type="submit" disabled={!username || !password || isSubmitting}>
-                    Войти
-                </button>
-            </form>
-            <div className="links">
-                <a href="/register">Зарегистрироваться</a>
-                <a href="/recover-password">Восстановить пароль</a>
-            </div>
-            <div className="social-login">
-                <button>Войти через Google</button>
-                <button>Войти через Facebook</button>
-                <button>Войти через Яндекс</button>
-            </div>
-        </div>
-    );
-};
+  const onSubmit = (data) => {
+    store.setLogin(data.login);
+    store.setPassword(data.password);
+    store.getToken();
+    reset();
+  };
+
+
+
+  return (
+    <div className="authorization">
+      <h2 className="auth__title">
+        Для оформления подписки <br /> на тариф, необходимо авторизоваться.
+      </h2>
+      <img className="auth-img" src={key} />
+
+    <form className="form" onSubmit={handleSubmit(onSubmit)}>
+      <img className="form-img__lock" src={lock} />
+      <div className="form-links">
+        <button className="form-link">
+          <Link to="/auth">Войти</Link>
+        </button>
+        <button className="form-link form-link__disabled">
+          <Link to="#">Зарегистрироваться</Link>
+        </button>
+      </div>
+      <label className="form-label">
+        {store.isAuthError
+          ? "Неправильный логин или номер телефона"
+          : "Логин или номер телефона:"}
+        <input
+          {...register("login", {
+            required: true,
+          })}
+          className={
+            errors?.login ? "form-input form-input__invalid" : "form-input"
+          }
+          type="text"
+        />
+        {errors?.login && (
+          <p className="error-message">Введите корректные данные</p>
+        )}
+      </label>
+      <label className="form-label">
+        {store.isAuthError ? "Неправильный пароль" : "Пароль:"}
+        <input
+          {...register("password", {
+            required: true,
+          })}
+          className={
+            errors?.password ? "form-input form-input__invalid" : "form-input"
+          }
+          type="password"
+          autoComplete="on"
+        />
+        {errors?.password && (
+          <p className="error-message">Введите корректные данные</p>
+        )}
+      </label>
+      {store.isLoading ? (
+        <button
+          disabled={!isValid}
+          className="form-button__submit"
+          type="submit"
+        >
+          <div className="lds-ellipsis">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+        </button>
+      ) : (
+        <button
+          disabled={!isValid}
+          className="form-button__submit"
+          type="submit"
+        >
+          Войти
+        </button>
+      )}
+      <Link className="repare-password" to="/error">
+        Восстановить пароль
+      </Link>
+      <p className="sign-with">Войти через:</p>
+      <div className="sign-socials">
+        <Link to="https://google.com" target="_blank">
+          <img src={google} />
+        </Link>
+        <Link to="https://facebook.com" target="_blank">
+          <img src={facebook} />
+        </Link>
+        <Link to="https://yandex.ru" target="_blank">
+          <img src={yandex} />
+        </Link>
+      </div>
+    </form>
+    </div>
+  );
+}
 
 export default AuthForm;
