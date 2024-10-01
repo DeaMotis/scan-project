@@ -1,110 +1,154 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/Context';
+
 import './SearchForm.css';
+import CompanyINN from './INN/INN';
+import Tonality from './Tonality/Tonality';
+import DocumentCount from './DocumentCount/DocumentCount';
+import DateInput from './DateInput/DateInput';
+import CheckboxBlock from './CheckBox/CheckBox';
 
-const SearchForm = () => {
-    const navigate = useNavigate();
+import search_page_large_picture from "../../../images/search_page_large_picture.svg"
+import search_page_small_picture_folders from "../../../images/search_page_small_picture_folders.svg"
+import search_page_small_picture_sheet from "../../../images/search_page_small_picture_sheet.svg"
 
-    const [companyINN, setCompanyINN] = useState('');
-    const [tonality, setTonality] = useState('Любая');
-    const [documentCount, setDocumentCount] = useState('');
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [isFormValid, setIsFormValid] = useState(false);
 
-    useEffect(() => {
-        const isValid = companyINN && documentCount && startDate && endDate;
-        setIsFormValid(isValid);
-    }, [companyINN, documentCount, startDate, endDate]);
+const Search = () => {
+  const [companyINN, setCompanyINN] = useState('');
+  const [tonality, setTonality] = useState('Любая');
+  const [documentCount, setDocumentCount] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [checkboxStates, setCheckboxStates] = useState({
+    maxCompleteness: false,
+    businessMentions: false,
+    mainRole: false,
+    riskFactorsOnly: false,
+    includeMarketNews: true,
+    includeAnnouncements: true,
+    includeNewsSummaries: true,
+  });
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
+  const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
 
-        if (isFormValid) {
-            const searchParams = {
-                companyINN,
-                tonality,
-                documentCount: Number(documentCount),
-                dateRange: {
-                    startDate: `${startDate}T00:00:00`,
-                    endDate: `${endDate}T23:59:59`
-                }
-            };
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate('/auth');
+    }
+  }, [isLoggedIn, navigate]);
 
-            console.log('Отправка запроса на сервер с данными:', searchParams);
-            navigate('/result', { state: { searchParams } });
-        } else {
-            console.log('Форма не валидна');
-        }
-    };
+  const [isFormValid, setIsFormValid] = useState(false);
 
-    return (
-        <section className="search-form-container">
-            <h2 className="form-title">Поиск данных</h2>
-            <form onSubmit={handleSubmit} className="search-form">
-                <div className="form-group">
-                    <label htmlFor="companyINN">ИНН компании:</label>
-                    <input
-                        type="text"
-                        id="companyINN"
-                        value={companyINN}
-                        onChange={(e) => setCompanyINN(e.target.value)}
-                        required
-                    />
-                </div>
+  useEffect(() => {
 
-                <div className="form-group">
-                    <label htmlFor="tonality">Тональность:</label>
-                    <select
-                        id="tonality"
-                        value={tonality}
-                        onChange={(e) => setTonality(e.target.value)}
-                    >
-                        <option value="Любая">Любая</option>
-                        <option value="Позитивная">Позитивная</option>
-                        <option value="Негативная">Негативная</option>
-                    </select>
-                </div>
+    const isValid = companyINN && documentCount && startDate && endDate;
+    setIsFormValid(isValid);
+  }, [companyINN, documentCount, startDate, endDate, checkboxStates]);
 
-                <div className="form-group">
-                    <label htmlFor="documentCount">Количество документов:</label>
-                    <input
-                        type="number"
-                        id="documentCount"
-                        value={documentCount}
-                        onChange={(e) => setDocumentCount(e.target.value)}
-                        required
-                    />
-                </div>
+  const handleCheckboxChange = (event) => {
+    const { name, checked } = event.target;
+    setCheckboxStates(prevState => ({
+      ...prevState,
+      [name]: checked,
+    }));
+  };
 
-                <div className="form-group">
-                    <label htmlFor="startDate">Дата начала:</label>
-                    <input
-                        type="date"
-                        id="startDate"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        required
-                    />
-                </div>
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-                <div className="form-group">
-                    <label htmlFor="endDate">Дата окончания:</label>
-                    <input
-                        type="date"
-                        id="endDate"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        required
-                    />
-                </div>
+    let apiTonality;
+    switch (tonality) {
+      case 'Любая':
+        apiTonality = 'any';
+        break;
+      case 'Позитивная':
+        apiTonality = 'positive';
+        break;
+      case 'Негативная':
+        apiTonality = 'negative';
+        break;
+      default:
+        apiTonality = 'any';
+    }
 
-                <button type="submit" disabled={!isFormValid}>
-                    Найти
-                </button>
-            </form>
-        </section>
-    );
+    if (isFormValid) {
+
+      const searchParams = {
+        issueDateInterval: {
+          startDate: `${startDate}T00:00:00+03:00`,
+          endDate: `${endDate}T23:59:59+03:00`
+        },
+        searchContext: {
+          targetSearchEntitiesContext: {
+            targetSearchEntities: [{
+              type: "company",
+              inn: companyINN,
+              maxFullness: checkboxStates.maxCompleteness,
+            }],
+            onlyMainRole: checkboxStates.mainRole,
+            tonality: apiTonality,
+            onlyWithRiskFactors: checkboxStates.riskFactorsOnly,
+          }
+        },
+        attributeFilters: {
+          excludeTechNews: !checkboxStates.includeMarketNews,
+          excludeAnnouncements: !checkboxStates.includeAnnouncements,
+          excludeDigests: !checkboxStates.includeNewsSummaries,
+        },
+        limit: Number(documentCount),
+        sortType: "sourceInfluence",
+        sortDirectionType: "desc",
+        intervalType: "month",
+        histogramTypes: ["totalDocuments", "riskFactors"]
+      };
+
+      console.log('Отправка запроса на сервер с данными:', searchParams);
+
+      navigate('/results', { state: { searchParams: searchParams } });
+    } else {
+      console.log('Форма не валидна, перенаправление не выполнено.');
+    }
+  };
+
+
+  return (
+    <div className="search-content">
+
+      <div className="search-title-block">
+        <div className="search-title-text">
+          <h1 className="h1-search-page">Найдите необходимые <br />данные в пару кликов.</h1>
+          <p className="p-search-page-title-block">Задайте параметры поиска. <br />Чем больше заполните, тем точнее поиск</p>
+        </div>
+        <img className="search-page-small-picture-sheet" src={search_page_small_picture_sheet} alt="Paper image" />
+        <img className="search_page_large_picture" src={search_page_large_picture} alt="Folderds image" />
+      </div>
+
+      <div className="search-block">
+        <form onSubmit={handleSubmit} className="search-form">
+
+          <div className="left-part-search-form">
+            <CompanyINN companyINN={companyINN} setCompanyINN={setCompanyINN} />
+            <Tonality tonality={tonality} setTonality={setTonality} />
+            <DocumentCount documentCount={documentCount} setDocumentCount={setDocumentCount} />
+            <DateInput startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} />
+          </div>
+
+          <div className="right-part-search-form">
+            <CheckboxBlock checkboxStates={checkboxStates} handleCheckboxChange={handleCheckboxChange} />
+            <div className="right-part-submit-button-block">
+              <button className="button" type="submit" disabled={!isFormValid}>Поиск</button>
+              <p className="star-message">* Обязательные к заполнению поля</p>
+            </div>
+          </div>
+
+        </form>
+
+        <img className="search_page_large_picture" src={search_page_large_picture} alt="Search image" />
+      </div>
+    </div>
+  );
 };
 
-export default SearchForm;
+export default Search;

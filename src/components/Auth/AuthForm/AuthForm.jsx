@@ -1,137 +1,150 @@
-import key from "../../../images/auth_keys.png";
-import "./AuthForm.css";
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
-import lock from "../../../images/lock.png";
-import google from "../../../images/google.png";
-import facebook from "../../../images/facebook.png";
-import yandex from "../../../images/yandex.png";
-import store from "../../../store";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/Context';
 
-function AuthForm() {
+import './AuthForm.css';
+import authorization_icon_facebook from "../../../images/authorization_icon_facebook.svg";
+import authorization_icon_google from "../../../images/authorization_icon_google.svg";
+import authorization_icon_lock from "../../../images/authorization_icon_lock.svg";
+import authorization_icon_yandex from "../../../images/authorization_icon_yandex.svg";
+import authorization_large_picture from "../../../images/authorization_large_picture.svg";
 
+const AuthForm = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [usernameError, setUsernameError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
   const navigate = useNavigate();
+  const { isLoggedIn, setIsLoggedIn } = useAuth(); // Corrected line
 
   useEffect(() => {
-    console.log("useEffect с токеном:", store.token);
-    store.token && navigate("/");
+    if (isLoggedIn) {
+      navigate('/');
+    }
+  }, [isLoggedIn, navigate]);
 
-  }, [store.token]);
+  const handleLogin = async (event) => {
+    event.preventDefault();
 
+    try {
+      const response = await fetch('https://gateway.scan-interfax.ru/api/v1/account/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          login: username,
+          password: password,
+        }),
+      });
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isValid },
-  } = useForm({
-    mode: "onBlur",
-    defaultValues: {
-      login: "sf_student1",
-      password: "4i2385j",
-    },
-  });
-
-  const onSubmit = (data) => {
-    store.setLogin(data.login);
-    store.setPassword(data.password);
-    store.getToken();
-    reset();
+      const data = await response.json();
+      if (response.ok) {
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('tokenExpire', data.expire);
+        setIsLoggedIn(true);
+        navigate('/');
+      } else {
+        throw new Error(data.message || 'Ошибка при входе');
+      }
+    } catch (error) {
+      console.error('Ошибка аутентификации:', error);
+      setUsernameError(true);
+      setPasswordError(true);
+    }
   };
 
 
+  const validateUsername = (input) => {
+    setUsernameError(false);
+  };
+
+  const validatePassword = (input) => {
+    setPasswordError(false);
+  };
+
+  const handleUsernameChange = (e) => {
+    const input = e.target.value;
+    setUsername(input);
+    validateUsername(input);
+  };
+
+  const handlePasswordChange = (e) => {
+    const input = e.target.value;
+    setPassword(input);
+    validatePassword(input);
+  };
+
 
   return (
-    <div className="authorization">
-      <h2 className="auth__title">
-        Для оформления подписки <br /> на тариф, необходимо авторизоваться.
-      </h2>
-      <img className="auth-img" src={key} />
+    <div className="auth-content">
+      <div className="text-and-picture">
+        <h1 className="h1-auth-page">Для оформления подписки <br />на тариф, необходимо <br />авторизоваться.</h1>
+        <img className="auth-large-image-desktop" src={authorization_large_picture} alt="People with key image" />
+      </div>
 
-    <form className="form" onSubmit={handleSubmit(onSubmit)}>
-      <img className="form-img__lock" src={lock} />
-      <div className="form-links">
-        <button className="form-link">
-          <Link to="/auth">Войти</Link>
-        </button>
-        <button className="form-link form-link__disabled">
-          <Link to="#">Зарегистрироваться</Link>
-        </button>
-      </div>
-      <label className="form-label">
-        {store.isAuthError
-          ? "Неправильный логин или номер телефона"
-          : "Логин или номер телефона:"}
-        <input
-          {...register("login", {
-            required: true,
-          })}
-          className={
-            errors?.login ? "form-input form-input__invalid" : "form-input"
-          }
-          type="text"
-        />
-        {errors?.login && (
-          <p className="error-message">Введите корректные данные</p>
-        )}
-      </label>
-      <label className="form-label">
-        {store.isAuthError ? "Неправильный пароль" : "Пароль:"}
-        <input
-          {...register("password", {
-            required: true,
-          })}
-          className={
-            errors?.password ? "form-input form-input__invalid" : "form-input"
-          }
-          type="password"
-          autoComplete="on"
-        />
-        {errors?.password && (
-          <p className="error-message">Введите корректные данные</p>
-        )}
-      </label>
-      {store.isLoading ? (
-        <button
-          disabled={!isValid}
-          className="form-button__submit"
-          type="submit"
-        >
-          <div className="lds-ellipsis">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
+
+      <div className="auth-block">
+        <img className="auth-icon-lock" src={authorization_icon_lock} alt="Key image" />
+        <div className="auth-form">
+          <div className="tabs">
+            <div className="tab active">Войти</div>
+            <div className="tab"><a className="inactive" href="#">Зарегистрироваться</a></div>
           </div>
-        </button>
-      ) : (
-        <button
-          disabled={!isValid}
-          className="form-button__submit"
-          type="submit"
-        >
-          Войти
-        </button>
-      )}
-      <Link className="repare-password" to="/error">
-        Восстановить пароль
-      </Link>
-      <p className="sign-with">Войти через:</p>
-      <div className="sign-socials">
-        <Link to="https://google.com" target="_blank">
-          <img src={google} />
-        </Link>
-        <Link to="https://facebook.com" target="_blank">
-          <img src={facebook} />
-        </Link>
-        <Link to="https://yandex.ru" target="_blank">
-          <img src={yandex} />
-        </Link>
+
+          <form onSubmit={handleLogin}>
+            <div className="input">
+              <label htmlFor="username">Логин или номер телефона:</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={username}
+                onChange={handleUsernameChange}
+                required
+                style={{ borderColor: usernameError ? 'red' : '' }}
+              />
+              {usernameError && <div className="auth-form-error">Введите корректные данные</div>}
+            </div>
+
+            <div className="input">
+              <label htmlFor="password">Пароль:</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={password}
+                onChange={handlePasswordChange}
+                autocomplete="current-password"
+                required
+                style={{ borderColor: passwordError ? 'red' : '' }}
+              />
+              {passwordError && <div className="auth-form-error">Введите правильный пароль</div>}
+            </div>
+
+            <div className="auth-button-div">
+              <button className="button auth-button" type="submit" disabled={!username || !password}>Войти</button>
+            </div>
+
+            <a href="#" className="reset-password">Восстановить пароль</a>
+
+          </form>
+
+          <div className="auth-social-media">
+            <p className="enter-with">Войти через:</p>
+            <div className="social-buttons">
+              <button><img src={authorization_icon_google} alt="Google" /></button>
+              <button><img src={authorization_icon_facebook} alt="Facebook" /></button>
+              <button><img src={authorization_icon_yandex} alt="Yandex" /></button>
+            </div>
+          </div>
+        </div>
       </div>
-    </form>
+      <img className="auth-large-image-mobile" src={authorization_large_picture} alt="People with key image" />
     </div>
-  );
+  )
 }
+
 
 export default AuthForm;

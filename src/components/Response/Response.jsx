@@ -1,67 +1,142 @@
-import React, { useEffect } from "react";
-import "./Response.css";
-import { store } from "../../redux/store";
-import target from "../../images/target.png";
-import { observer } from "mobx-react-lite";
-import { useNavigate } from "react-router";
-import { MainSlider } from "../Main/Slider/Slider";
-import { Link } from "react-router-dom";
-import { LoaderCircle } from "../../general/Loader/Loaders";
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/Context';
 
-const SearchResult = observer(() => {
+import './Response.css';
+import GeneralSummaryTable from './Table/Table';
+import ArticleCards from './Article/ArticleCard/ArticleCard';
+import search_results_large_picture from '../../images/search_results_large_picture.svg';
+
+const Response = () => {
+  const location = useLocation();
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchData, setSearchData] = useState(null);
+  const [documentsData, setDocumentsData] = useState(null);
+  const [isError, setIsError] = useState(false);
+  const [isAllDataLoaded, setIsAllDataLoaded] = useState(false);
+
+  const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!store.token) {
-      navigate("/auth");
+    if (!isLoggedIn) {
+      navigate('/auth');
     }
-  }, [navigate]);
+  }, [isLoggedIn, navigate]);
+
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      const searchParams = location.state?.searchParams;
+      if (!searchParams) {
+        console.error('Search parameters are missing.');
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      setIsError(false);
+
+      try {
+
+        const histogramResponse = await fetch('https://gateway.scan-interfax.ru/api/v1/objectsearch/histograms', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+          body: JSON.stringify(searchParams),
+          credentials: 'omit',
+        });
+
+        if (!histogramResponse.ok) {
+          throw new Error(`HTTP error! status: ${histogramResponse.status}`);
+        }
+
+        const histogramData = await histogramResponse.json();
+
+        const publicationIdsResponse = await fetch('https://gateway.scan-interfax.ru/api/v1/objectsearch', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+          body: JSON.stringify(searchParams),
+          credentials: 'omit',
+        });
+
+        if (!publicationIdsResponse.ok) {
+          throw new Error(`HTTP error! status: ${publicationIdsResponse.status}`);
+        }
+
+        const publicationIdsData = await publicationIdsResponse.json();
+        const publicationIds = publicationIdsData.items.map(item => item.encodedId);
+
+        console.log("количество публикаций:", publicationIds.length);
+
+        // Запрос на получение содержимого документов по их ID
+        const documentsResponse = await fetch('https://gateway.scan-interfax.ru/api/v1/documents', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+          body: JSON.stringify({ ids: publicationIds }),
+          credentials: 'omit',
+
+        });
+
+
+        if (!documentsResponse.ok) {
+          throw new Error(`HTTP error! status: ${documentsResponse.status}`);
+          console.log("количество полученных id публикаций:", publicationIds.length);
+        }
+
+        const documentsData = await documentsResponse.json();
+        setSearchData(histogramData);
+        setDocumentsData(documentsData);
+      } catch (error) {
+        console.error("Ошибка при выполнении запроса:", error.message);
+        setIsError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSearchResults();
+
+  }, [JSON.stringify(location.state?.searchParams)]);
+
 
   return (
-    <div className="search-result">
-      <div className="search-result__top">
-        <div>
-          <h1 className="search-title search-result__title">
-            Результаты поиска
-          </h1>
-
-          {store.isSummaryLoading ? (
-            <p className="search-details">
-              Поиск может занять некоторое время, <br />
-              просим сохранять терпение.
-            </p>
-          ) : (
-            <p className="search-details">
-              По вашему запросу найдены <br /> следующие данные.
-            </p>
-          )}
-        </div>
-        <img
-          src={target}
-          className="search-result__img"
-          alt="Цель"
-        />
-      </div>
-
-      {store.isSummaryError ? (
-        <p className="search-result__error search-result-error__info">
-          Что-то пошло не так :( <br />
-          Попробуйте <Link to="/search">изменить параметры поиска</Link>
-        </p>
-      ) : (
-        <div>
-          {store.isSummaryLoading ? (
-            <div className="slider-loader">
-              <LoaderCircle />
-              <p className="loading-data">Загружаем данные</p>
+    <div className="search-results-content">
+      {isLoading && (
+        <>
+          <div className="search-results-title-block">
+            <div className="search-results-title-text">
+              <h1 className="h1-search-results-page">Ищем. Скоро будут результаты</h1>
+              <p className="p-search-results-page-title-block">Поиск может занять некоторое время, просим сохранять терпение.</p>
             </div>
-          ) : (
-            <MainSlider />
-          )}
-        </div>
+            <img className="search-results-large-picture" src={search_results_large_picture} alt="Search results picture" />
+          </div>
+          <GeneralSummaryTable searchData={searchData} isLoading={isLoading} setIsLoading={setIsLoading}/>
+          </>
+      )}
+
+      {!isLoading && isError && (
+        <>
+          <GeneralSummaryTable searchData={searchData} isLoading={isLoading} setIsLoading={setIsLoading} isError={isError}/>
+        </>
+      )}
+
+      {!isLoading && !isError && (
+        <>
+          <GeneralSummaryTable searchData={searchData} isLoading={isLoading} setIsLoading={setIsLoading} isError={isError}/>
+          <ArticleCards documentsData={documentsData}/>
+        </>
       )}
     </div>
   );
-});
+}
 
-export default SearchResult;
+export default Response;
+

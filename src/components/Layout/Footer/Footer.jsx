@@ -1,20 +1,22 @@
 import React from "react";
 import "./Footer.css";
-import scan from "../../../images/logo_scan_footer.png";
+import scan_logo_white from '../../../images/scan_logo_white.svg';
 
 const Footer = () => {
-
   return (
-    <footer className="footer">
-        <img className="logo" src={scan}  />
-        <div className="footer_info">
-            <p className="footer_info_item">г. Москва, Цветной б-р, 40</p>
-            <a href="tel:+7(495)771-21-11" className="footer_info_item">+7 495 771 21 11</a>
-            <a href="mailto:info@skan.ru" className="footer_info_item">info@skan.ru</a>
-            <p className="footer_copy">Copyright. 2023</p>
+    <footer>
+      <div className="footer-content">
+        <img className="scan-logo" src={scan_logo_white} alt="Scan logo" />
+        <div className="address-block">
+          <p>г. Москва, Цветной б-р, 40</p>
+          <p>+7 495 771 21 11</p>
+          <p>info@skan.ru</p>
+          <p style={{ marginTop: '40px' }}></p>
+          <p style={{ fontSize: '12px' }}>Copyright. 2022</p>
         </div>
+      </div>
     </footer>
-  )
+  );
 }
 
-export default Footer
+export default Footer;
