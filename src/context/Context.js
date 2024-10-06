@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const Context = createContext();
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -8,7 +8,9 @@ export const AuthProvider = ({ children }) => {
   const checkAuthStatus = () => {
     const accessToken = localStorage.getItem('accessToken');
     const tokenExpire = localStorage.getItem('tokenExpire');
+
     const now = new Date();
+
     if (!accessToken || !tokenExpire || new Date(tokenExpire) <= now) {
       console.log("Token expired or not found.");
       setIsLoggedIn(false);
@@ -24,10 +26,16 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <Context.Provider value={{ isLoggedIn, setIsLoggedIn, checkAuthStatus }}>
+    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, checkAuthStatus }}>
       {children}
-    </Context.Provider>
+    </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(Context);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};

@@ -122,7 +122,7 @@ const Search = () => {
           <p className="p-search-page-title-block">Задайте параметры поиска. <br />Чем больше заполните, тем точнее поиск</p>
         </div>
         <img className="search-page-small-picture-sheet" src={search_page_small_picture_sheet} alt="Paper image" />
-        <img className="search_page_large_picture" src={search_page_large_picture} alt="Folderds image" />
+        <img className="search-page-small-picture-folders" src={search_page_small_picture_folders} alt="Folderds image" />
       </div>
 
       <div className="search-block">
@@ -145,7 +145,7 @@ const Search = () => {
 
         </form>
 
-        <img className="search_page_large_picture" src={search_page_large_picture} alt="Search image" />
+        <img className="search-page-large-picture" src={search_page_large_picture} alt="Search image" />
       </div>
     </div>
   );

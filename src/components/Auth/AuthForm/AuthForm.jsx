@@ -15,7 +15,7 @@ const AuthForm = () => {
   const [usernameError, setUsernameError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const navigate = useNavigate();
-  const { isLoggedIn, setIsLoggedIn } = useAuth(); // Corrected line
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -84,7 +84,6 @@ const AuthForm = () => {
         <img className="auth-large-image-desktop" src={authorization_large_picture} alt="People with key image" />
       </div>
 
-
       <div className="auth-block">
         <img className="auth-icon-lock" src={authorization_icon_lock} alt="Key image" />
         <div className="auth-form">
@@ -103,6 +102,7 @@ const AuthForm = () => {
                 value={username}
                 onChange={handleUsernameChange}
                 required
+                autoComplete="username"
                 style={{ borderColor: usernameError ? 'red' : '' }}
               />
               {usernameError && <div className="auth-form-error">Введите корректные данные</div>}
@@ -116,7 +116,7 @@ const AuthForm = () => {
                 name="password"
                 value={password}
                 onChange={handlePasswordChange}
-                autocomplete="current-password"
+                autoComplete="current-password"
                 required
                 style={{ borderColor: passwordError ? 'red' : '' }}
               />
@@ -128,7 +128,6 @@ const AuthForm = () => {
             </div>
 
             <a href="#" className="reset-password">Восстановить пароль</a>
-
           </form>
 
           <div className="auth-social-media">
@@ -141,10 +140,11 @@ const AuthForm = () => {
           </div>
         </div>
       </div>
+
       <img className="auth-large-image-mobile" src={authorization_large_picture} alt="People with key image" />
     </div>
-  )
-}
+  );
+};
 
 
 export default AuthForm;

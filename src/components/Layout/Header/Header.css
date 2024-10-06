@@ -1,8 +1,6 @@
-@import "../../../styles/colors.css";
-
 header {
     position: fixed;
-    top: 0;
+    top: 0; 
     left: 0;
     right: 0;
     z-index: 1000;
@@ -15,7 +13,7 @@ header {
     justify-content: space-between;
     align-items: center;
     height: 93px;
-    max-width: 1440px;
+    max-width: 1920px;
     margin: 0 auto;
     padding: 0 60px;
     font-size: 14px;
@@ -82,3 +80,8 @@ header {
         gap: 40px;
     }
 }
+
+
+
+
+

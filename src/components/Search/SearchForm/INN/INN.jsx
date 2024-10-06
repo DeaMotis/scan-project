@@ -6,11 +6,13 @@ const INN = ({ companyINN, setCompanyINN }) => {
   const validateInn = (inn) => {
     let errorObj = { code: 0, message: '' };
     let result = false;
+
     if (typeof inn === 'number') {
       inn = inn.toString();
     } else if (typeof inn !== 'string') {
       inn = '';
     }
+
     if (!inn.length) {
       errorObj.code = 1;
       errorObj.message = 'Обязательное поле';
@@ -28,6 +30,7 @@ const INN = ({ companyINN, setCompanyINN }) => {
         }
         return parseInt(n % 11 % 10, 10);
       };
+
       switch (inn.length) {
         case 10:
           var n10 = checkDigit(inn, [2, 4, 10, 3, 5, 9, 4, 6, 8]);
@@ -42,12 +45,18 @@ const INN = ({ companyINN, setCompanyINN }) => {
             result = true;
           }
           break;
+        default:
+          errorObj.code = 3;
+          errorObj.message = 'Введите корректные данные';
+          break;
       }
+
       if (!result) {
         errorObj.code = 4;
         errorObj.message = 'Введите корректные данные';
       }
     }
+
     setError(errorObj.message);
     return result;
   };

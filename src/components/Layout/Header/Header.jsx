@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-
-import Navbar from './Menu/Menu';
-import UserBlock from './UserForm/UserForm';
+import Menu from './Menu/Menu';
+import UserForm from './UserForm/UserForm';
 import { useAuth } from '../../../context/Context';
+import { AuthProvider } from '../../../context/Context';
 
 import './Header.css';
 
@@ -15,8 +14,8 @@ import scan_logo_white from '../../../images/scan_logo_white.svg';
 import fallout_menu_icon from '../../../images/fallout_menu_icon.svg';
 import close_icon from '../../../images/closing-icon.png';
 
-const Header = ({ isLoggedIn, userName, userPicture, setUserName, setUserPicture }) => {
-    const { setIsLoggedIn } = useAuth();
+const Header = ({ userName, userPicture, setUserName, setUserPicture }) => {
+    const { isLoggedIn, setIsLoggedIn } = useAuth();
     const [isMenuVisible, setIsMenuVisible] = useState(false);
     const { width } = useWindowSize();
     const isMobile = width <= 1360;
@@ -38,29 +37,29 @@ const Header = ({ isLoggedIn, userName, userPicture, setUserName, setUserPicture
 
     useEffect(() => {
         const interval = setInterval(() => {
-          const tokenExpire = localStorage.getItem('tokenExpire');
-          const now = new Date();
+            const tokenExpire = localStorage.getItem('tokenExpire');
+            const now = new Date();
 
-          if (!tokenExpire || new Date(tokenExpire) <= now) {
-            setIsLoggedIn(false);
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('tokenExpire');
-          }
+            if (!tokenExpire || new Date(tokenExpire) <= now) {
+                setIsLoggedIn(false);
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('tokenExpire');
+            }
         }, 1000 * 60);
 
         return () => clearInterval(interval);
-      }, []);
+    }, [setIsLoggedIn]);
 
     return (
         <header className={isMenuVisible && isMobile ? 'menu-visible' : ''}>
             <div className="header-content">
                 <img className="scan-logo" src={isMenuVisible && isMobile ? scan_logo_white : scan_logo_green} alt="Scan logo" />
 
-                {!isMobile && <Navbar />}
+                {!isMobile && <Menu />}
 
                 {!isMobile && isLoggedIn && (
                     <div className="right-section">
-                        <UserBlock
+                        <UserForm
                             isLoggedIn={isLoggedIn}
                             userName={userName}
                             userPicture={userPicture}
@@ -71,21 +70,19 @@ const Header = ({ isLoggedIn, userName, userPicture, setUserName, setUserPicture
                 )}
 
                 {isMobile && !isMenuVisible && (
-                    <UserBlock
+                    <UserForm
                         isLoggedIn={isLoggedIn}
                         userName={userName}
                         userPicture={userPicture}
                         setUserName={setUserName}
                         setUserPicture={setUserPicture}
-                        isMenuVisible={isMenuVisible}
-                        isMobile={isMobile}
                     />
                 )}
 
                 {isMobile && (
                     <img src={isMenuVisible ? close_icon : fallout_menu_icon}
-                    alt="Menu" className="menu-icon"
-                    onClick={toggleMenuVisibility} />
+                        alt="Menu" className="menu-icon"
+                        onClick={toggleMenuVisibility} />
                 )}
 
                 {!isLoggedIn && !isMobile && (
@@ -101,16 +98,14 @@ const Header = ({ isLoggedIn, userName, userPicture, setUserName, setUserPicture
 
             {isMenuVisible && isMobile && (
                 <div className="dropdown-menu-page">
-                    <Navbar />
+                    <Menu />
                     {isLoggedIn ? (
-                        <UserBlock
+                        <UserForm
                             isLoggedIn={isLoggedIn}
                             userName={userName}
                             userPicture={userPicture}
                             setUserName={setUserName}
                             setUserPicture={setUserPicture}
-                            isMenuVisible={isMenuVisible}
-                            isMobile={isMobile}
                         />
                     ) : (
                         <div className="reg-block">
@@ -120,11 +115,8 @@ const Header = ({ isLoggedIn, userName, userPicture, setUserName, setUserPicture
                     )}
                 </div>
             )}
-
-
         </header>
     );
 };
-
 
 export default Header;

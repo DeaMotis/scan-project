@@ -6,6 +6,7 @@ const Actions = () => {
     const [usedCompanyCount, setUsedCompanyCount] = useState(0);
     const [companyLimit, setCompanyLimit] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         const fetchCompanyInfo = async () => {
@@ -26,10 +27,16 @@ const Actions = () => {
                 }
 
                 const data = await response.json();
-                setUsedCompanyCount(data.eventFiltersInfo.usedCompanyCount);
-                setCompanyLimit(data.eventFiltersInfo.companyLimit);
+                if (data.eventFiltersInfo) {
+                    setUsedCompanyCount(data.eventFiltersInfo.usedCompanyCount || 0);
+                    setCompanyLimit(data.eventFiltersInfo.companyLimit || 0);
+                } else {
+                    throw new Error('Не удалось получить данные о компаниях');
+                }
+                setError('');
             } catch (error) {
                 console.error("Ошибка при получении информации о компаниях:", error);
+                setError(error.message);
             } finally {
                 setIsLoading(false);
             }
@@ -45,11 +52,12 @@ const Actions = () => {
     return (
         <div className="user-actions-rectangle">
             {isLoading ? (
-                <img src={loading_icon} alt="Loading" className="spinner" />
+                <img src={loading_icon} alt="Loading" className="loading-icon" />
             ) : (
                 <div className="user-actions-data">
                     <div className="action-item">Использовано компаний</div>
                     <div className="number-item used-companies-number">{usedCompanyCount}</div>
+                    <br />
                     <div className="action-item">Лимит по компаниям</div>
                     <div className="number-item limit-companies-number">{companyLimit}</div>
                 </div>

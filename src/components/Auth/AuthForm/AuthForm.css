@@ -2,7 +2,7 @@
     width: 100%;
     background-color: var(--scan-white);
     padding-top: 123px;
-    max-width: 1440px;
+    max-width: 2560px;
     flex-grow: 1;
     display: flex;
     justify-content: space-around;
@@ -18,8 +18,8 @@
 }
 
 .auth-large-image-desktop {
-    width: 321.76px;
-    height: 342.03px;
+    width: 450px;
+    height: 500px;
     margin-left: 112px;
 }
 

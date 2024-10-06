@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useAuth } from './context/Context';
 
@@ -15,7 +15,7 @@ import Footer from "./components/Layout/Footer/Footer";
 import SearchForm from "./components/Search/SearchForm/SearchForm";
 import Response from "./components/Response/Response";
 import AuthForm from "./components/Auth/AuthForm/AuthForm";
-import user_picture from "./images/user_pic_example.png";
+import user_pic_example from "./images/user_pic_example.png";
 
 const routesData = [
   { path: "/", element: <Main /> },
@@ -25,20 +25,35 @@ const routesData = [
 ];
 
 function App() {
+  const { isLoggedIn, checkAuthStatus } = useAuth();
+  const [userTariff, setUserTariff] = useState('beginner');
+  const [userName, setUserName] = useState('');
+  const [userPicture, setUserPicture] = useState(user_pic_example);
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+        console.log("Пользователь не залогинен, обновите UI");
+      }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    checkAuthStatus();
+  }, [checkAuthStatus]);
+
+
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Header />
-        <main>
-          <Routes>
-            {routesData.map((route, index) => (
-              <Route key={index} path={route.path} element={route.element} />
-            ))}
-          </Routes>
-        </main>
+    <BrowserRouter>
+      <div className="app-container">
+        <Header isLoggedIn={isLoggedIn} userName={userName} setUserName={setUserName} userPicture={userPicture} setUserPicture={setUserPicture} />
+        <Routes>
+          <Route path="/" element={<Main isLoggedIn={isLoggedIn} userTariff={userTariff} />} />
+          <Route path="/auth" element={<AuthForm />} />
+          <Route path="/search" element={isLoggedIn ? <SearchForm /> : <AuthForm redirectBack="/search" />} />
+          <Route path="/results" element={isLoggedIn ? <Response /> : <AuthForm redirectBack="/results" />} />
+        </Routes>
         <Footer />
-      </BrowserRouter>
-    </div>
+      </div>
+    </BrowserRouter>
   );
 }
 

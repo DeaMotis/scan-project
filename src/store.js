@@ -1,5 +1,5 @@
 import { makeAutoObservable } from "mobx";
-import AuthService from "../services/AuthService.js"; // Убедитесь, что путь верный
+import AuthService from './services/AuthService';
 
 export default class Store {
     isAuth = false;
@@ -12,17 +12,16 @@ export default class Store {
 
     initializeAuth() {
         const token = localStorage.getItem('token');
-        if (token) {
-            this.isAuth = true;
-        }
+        this.isAuth = Boolean(token);
     }
+
 
     setAuth(bool) {
         this.isAuth = bool;
     }
 
     setLoading(bool) {
-        this.isLoading = bool
+        this.isLoading = bool;
     }
 
     async login(username, password) {
@@ -33,7 +32,8 @@ export default class Store {
             localStorage.setItem('token', response.data.accessToken);
             this.setAuth(true);
         } catch (e) {
-            console.log(e.response?.data?.message);
+            // Обработка ошибки
+            console.error('Ошибка входа:', e.response?.data?.message || e.message);
         } finally {
             this.setLoading(false);
         }
@@ -46,7 +46,7 @@ export default class Store {
             this.setAuth(false);
             console.log(response);
         } catch (e) {
-            console.log(e.response?.data?.message);
+            console.error('Ошибка выхода:', e.response?.data?.message || e.message);
         }
     }
 }

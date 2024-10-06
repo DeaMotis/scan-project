@@ -6,7 +6,7 @@ import UserInfo from './Info/Info';
 import './UserForm.css';
 import user_pic_example from '../../../../images/user_pic_example.png';
 
-const UserForm = ({ isLoggedIn, userName, userPicture, setUserName, setUserPicture, isMobile, isMenuVisible }) => { // Изменено на UserForm
+const UserForm = ({ isLoggedIn, userName, userPicture, setUserName, setUserPicture, isMobile, isMenuVisible }) => {
     const [isLoadingActions, setIsLoadingActions] = useState(true);
     const navigate = useNavigate();
 
@@ -18,14 +18,14 @@ const UserForm = ({ isLoggedIn, userName, userPicture, setUserName, setUserPictu
         setIsLoadingActions(true);
         setTimeout(() => {
             const userData = {
-                name: 'Анастасия С.',
+                name: 'Алексей А.',
                 picture: user_pic_example
             };
             setUserName(formatName(userData.name));
             setUserPicture(userData.picture);
             setIsLoadingActions(false);
         }, 2000);
-    }, []);
+    }, [setUserName, setUserPicture]);
 
     function formatName(fullName) {
         const parts = fullName.split(' ');

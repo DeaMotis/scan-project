@@ -19,6 +19,7 @@ import why_us_icon_magnifier from "./why_us_icon_magnifier.svg";
 import why_us_icon_shield from "./why_us_icon_shield.svg";
 import why_us_icon_watch from "./why_us_icon_watch.svg";
 import why_us_large_picture from "./why_us_large_picture.svg";
+import images/user_pic_example from"./images/user_pic_example.png"
 
 export {
     about_picture,
@@ -41,5 +42,6 @@ export {
     why_us_icon_magnifier,
     why_us_icon_shield,
     why_us_icon_watch,
-    why_us_large_picture
+    why_us_large_picture,
+    images/user_pic_example
 }

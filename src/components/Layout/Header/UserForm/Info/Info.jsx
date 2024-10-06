@@ -6,7 +6,8 @@ import loading_icon from '../../../../../images/loading_icon.svg';
 const UserInfo = ({ userName, userPicture, isLoading }) => {
     const { setIsLoggedIn } = useAuth();
 
-    const handleLogout = () => {
+    const handleLogout = (event) => {
+        event.preventDefault();
         setIsLoggedIn(false);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('tokenExpire');
@@ -15,14 +16,14 @@ const UserInfo = ({ userName, userPicture, isLoading }) => {
     return (
         <div className="user-info">
             <div className="user-details">
-                <div className="user-name">{userName}</div>
+                <div className="user-name">{userName || 'Имя пользователя'}</div>
 
                 <a href="#" className="logout-link" onClick={handleLogout}>Выйти</a>
             </div>
             {isLoading ? (
                 <img src={loading_icon} alt="Loading" className="loading_icon" />
             ) : (
-                <img src={userPicture} alt="User" className="user-picture" />
+                <img src={userPicture || loading_icon} alt="User" className="user-picture" />
             )}
         </div>
     );
