@@ -1,8 +1,6 @@
 .user-form {
     display: flex;
     justify-content: space-evenly;
-    align-items: center;
-    min-width: 388px;
 }
 
 @keyframes spin {

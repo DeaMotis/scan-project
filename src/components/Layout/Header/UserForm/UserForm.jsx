@@ -36,7 +36,7 @@ const UserForm = ({ isLoggedIn, userName, userPicture, setUserName, setUserPictu
     }
 
     return (
-        <div className="user-forms">
+        <div className="user-form">
             {isMobile && isLoggedIn && !isMenuVisible && (
                 <Actions isLoading={isLoadingActions} />
             )}

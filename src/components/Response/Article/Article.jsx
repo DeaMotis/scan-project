@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import ArticleCard from './ArticleCard/ArticleCard';
 
-import './ArticleCards.css';
+import './Article.css';
 
-import mock_article_1_picture from '../../../assets/mock_article_1_picture.png';
-import mock_article_2_picture from '../../../assets/mock_article_2_picture.png';
+import mock_article_1_picture from '../../../images/mock_article_1_picture.png';
+import mock_article_2_picture from '../../../images/mock_article_2_picture.png';
 
 
-function ArticleCards({ documentsData }) {
+function Article({ documentsData }) {
   const [articles, setArticles] = useState([]);
   const [displayedArticles, setDisplayedArticles] = useState(2);
 
@@ -31,7 +31,6 @@ function ArticleCards({ documentsData }) {
   }, [documentsData]);
 
 
-  // Функция для загрузки больше статей
   const showMoreArticles = () => {
     setDisplayedArticles(prev => prev + 2);
   };
@@ -53,4 +52,4 @@ function ArticleCards({ documentsData }) {
   );
 }
 
-export default ArticleCards;
+export default Article;

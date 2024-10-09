@@ -3,8 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/Context';
 
 import './Response.css';
-import GeneralSummaryTable from './Table/Table';
-import ArticleCards from './Article/ArticleCard/ArticleCard';
+import Table from './Table/Table';
+import Article from './Article/Article';
 import search_results_large_picture from '../../images/search_results_large_picture.svg';
 
 const Response = () => {
@@ -73,7 +73,6 @@ const Response = () => {
 
         console.log("количество публикаций:", publicationIds.length);
 
-        // Запрос на получение содержимого документов по их ID
         const documentsResponse = await fetch('https://gateway.scan-interfax.ru/api/v1/documents', {
           method: 'POST',
           headers: {
@@ -118,20 +117,20 @@ const Response = () => {
             </div>
             <img className="search-results-large-picture" src={search_results_large_picture} alt="Search results picture" />
           </div>
-          <GeneralSummaryTable searchData={searchData} isLoading={isLoading} setIsLoading={setIsLoading}/>
+          <Table searchData={searchData} isLoading={isLoading} setIsLoading={setIsLoading}/>
           </>
       )}
 
       {!isLoading && isError && (
         <>
-          <GeneralSummaryTable searchData={searchData} isLoading={isLoading} setIsLoading={setIsLoading} isError={isError}/>
+          <Table searchData={searchData} isLoading={isLoading} setIsLoading={setIsLoading} isError={isError}/>
         </>
       )}
 
       {!isLoading && !isError && (
         <>
-          <GeneralSummaryTable searchData={searchData} isLoading={isLoading} setIsLoading={setIsLoading} isError={isError}/>
-          <ArticleCards documentsData={documentsData}/>
+          <Table searchData={searchData} isLoading={isLoading} setIsLoading={setIsLoading} isError={isError}/>
+          <Article documentsData={documentsData}/>
         </>
       )}
     </div>

@@ -20,13 +20,12 @@ scanApi.interceptors.request.use(config => {
     return config;
 });
 
-//  try-catch для обработки ошибок
 export const login = async (login, password) => {
     try {
         return await scanApi.post('/api/v1/account/login', { login, password });
     } catch (error) {
         console.error('Login error:', error);
-        throw error; // Можно выбросить ошибку или вернуть какой-то кортеж с ошибкой
+        throw error;
     }
 };
 

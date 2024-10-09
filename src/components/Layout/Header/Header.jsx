@@ -76,6 +76,8 @@ const Header = ({ userName, userPicture, setUserName, setUserPicture }) => {
                         userPicture={userPicture}
                         setUserName={setUserName}
                         setUserPicture={setUserPicture}
+                        isMenuVisible={isMenuVisible}
+                        isMobile={isMobile}
                     />
                 )}
 
@@ -106,6 +108,8 @@ const Header = ({ userName, userPicture, setUserName, setUserPicture }) => {
                             userPicture={userPicture}
                             setUserName={setUserName}
                             setUserPicture={setUserPicture}
+                            isMenuVisible={isMenuVisible}
+                            isMobile={isMobile}
                         />
                     ) : (
                         <div className="reg-block">
